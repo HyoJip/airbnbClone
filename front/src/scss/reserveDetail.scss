@@ -1,0 +1,468 @@
+@import "./_base";
+@import "./_mixins";
+
+html {
+	scroll-behavior: smooth;
+}
+
+.BtnDisabled {
+	cursor: no-drop !important;
+	opacity: 0.2 !important;
+}
+
+.wrap {
+	max-width: var(--wrapWidth);
+	margin: 0 auto;
+
+	.header {
+		margin: 0 var(--containerHorizontalMargin);
+		padding: var(--containerVerticalPadding) 0;
+
+		i {
+			display: block;
+			cursor: pointer;
+		}
+
+		.header_title {
+			font-weight: 700;
+			padding: var(--containerVerticalPadding) 0;
+		}
+	}
+
+	.reserve {
+		display: flex;
+		justify-content: space-between;
+
+		.main {
+			padding: calc(var(--containerVerticalPadding) / 2) 0;
+			margin: 0 var(--containerHorizontalMargin);
+			width: 65%;
+
+			.room_name {
+				font-weight: 700;
+			}
+
+			.room_address {
+				margin: 10px 0;
+			}
+
+			.reserve_time_wrap {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin: var(--containerVerticalPadding) 0;
+
+				.reserve_time {
+					.reserve_check {
+						font-weight: 700;
+						font-size: 1.25rem;
+					}
+
+					.room_check {
+						color: var(--gray);
+						font-size: 0.9rem;
+					}
+
+					i {
+						color: var(--gray);
+						font-size: 1.25rem;
+					}
+				}
+				
+				.reserve_detail {
+					.reserve_night {
+						font-weight: 700;
+					}
+
+					.reserve_guests {
+						color: var(--gray);
+						font-size: 0.8rem;
+					}
+				}
+			}
+
+			.icons {
+				display: flex;
+				padding: var(--containerVerticalPadding) 0;
+				border-top: var(--bottomBorder);
+
+				.icons_item {
+					color: var(--gray);
+
+					i,
+					span {
+						padding-right: 15px;
+						cursor: pointer;
+						font-size: 1rem;
+					}
+
+					&:last-of-type i {
+						padding-left: 30px;
+					}
+
+					&:hover {
+						color: black;
+					}
+				}
+			}
+
+			.footer {
+				display: none;
+				justify-content: space-between;
+				margin-bottom: var(--containerVerticalPadding);
+				animation: slide ease 0.3s;
+
+				.reserve_change,
+				.reserve_cancel {
+					border: 1px solid lighten(gray, 30%);
+					border-radius: 5px;
+					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+					padding: 30px;
+					width: 45%;
+				    display: flex;
+				    flex-direction: column;
+				    height: 280px;
+
+					i {
+						color: var(--blue);
+						font-size: 2rem;
+						margin-bottom: 0.5em;
+					}
+
+					.footer_title {
+						font-weight: 700;
+					}
+
+					.footer_body {
+						color: var(--gray);
+					}
+					
+					a {
+						margin-top: auto;
+						
+						button {
+							all: unset;
+							padding: 0.5em 1em;
+							color: var(--blue);
+							border: 2px solid var(--blue);
+							border-radius: 5px;
+							cursor: pointer;
+							font-weight: 700;
+						}
+					}
+
+				}
+			}
+			
+			.change_step-1 {
+				padding: var(--containerVerticalPadding) 0;
+				border-top: var(--bottomBorder);
+				display: none;
+				animation: slide ease .3s;
+	
+				.change_step_title {
+					font-size: 2rem;
+					font-weight: 700;
+				}
+				
+				.reservation_people {
+					    font-size: 0.9rem;
+					    height: 50px;
+					    margin: 30px 0;
+
+					.reservation_display {
+						position: relative;
+
+						.guest_counter_box {
+							position: absolute;
+							right: 0;
+							top: -10px;
+
+							.display_btn_icon {
+								display: inline-block;
+								border: 1px solid black;
+								border-radius: 50%;
+								width: 30px;
+								height: 30px;
+								line-height: 30px;
+								text-align: center;
+								margin-left: 10px;
+								opacity: 0.5;
+								color: black;
+								cursor: pointer;
+
+								&:hover {
+									opacity: 1;
+								}
+
+								&:active {
+									transform: scale(0.95);
+								}
+							}
+						}
+					}
+				}
+				.reservation_main {
+	
+					.reservation_form {
+						background-color: white;
+						width: 660px;
+						box-shadow: var(--boxShadow);
+						border-radius: var(--borderRadius);
+						padding: 20px 30px;
+		
+						.form_header {
+							display: flex;
+		
+							.header_text {
+								width: 55%;
+		
+								.header_title {
+									font-weight: 700;
+									font-size: 1.5rem;
+								}
+								.header_body {
+									color: var(--gray);
+									font-weight: 300;
+								}
+							}
+		
+							.header_inputs {
+								width: 45%;
+								display: flex;
+								border: var(--bottomBorder);
+								border-radius: var(--borderRadius);
+								background-color: #f7f7f7;
+		
+								.input_item {
+									font-size: 0.8rem;
+									padding: 10px;
+									border-radius: var(--borderRadius);
+									width: 50%;
+		
+									.reservation_input {
+										all: unset;
+										font-weight: 300;
+										cursor: text;
+									}
+								}
+							}
+						}
+		
+						.form_main {
+							position: relative;
+							margin-top: var(--containerHorizontalMargin);
+							margin-bottom: calc(var(--containerHorizontalMargin) / 2);
+		
+							.pagination_btns {
+								position: absolute;
+								top: 0;
+								width: 100%;
+								display: flex;
+								justify-content: space-between;
+		
+								.pagination_btn {
+									all: unset;
+									cursor: pointer;
+									font-size: 1.5rem;
+									line-height: 1.5rem;
+								}
+							}
+		
+							.calendar_wrap {
+								width: 100%;
+								display: flex;
+								justify-content: space-between;
+		
+								.calendar_item {
+									width: 48%;
+		
+									.calendar_month {
+										width: 100%;
+										text-align: center;
+										margin-bottom: 15px;
+										font-weight: 700;
+									}
+		
+									.calendar_row {
+										display: flex;
+		
+										.calendar_day {
+											width: var(--calendarDaySize);
+											height: var(--calendarDaySize);
+											text-align: center;
+		
+											&.available_day {
+												background-color: #f5f6fa;
+											}
+		
+											span {
+												display: block;
+												width: 100%;
+												height: 100%;
+												line-height: var(--calendarDaySize);
+		
+												&.invalid_day {
+													color: var(--gray);
+													text-decoration: line-through;
+												}
+		
+												&.valid_day:hover {
+													border: 1px solid black;
+													border-radius: 50%;
+													cursor: pointer;
+												}
+											}
+		
+											&.clicked {
+												&.available_day {
+													border-radius: 50% 0 0 50%;
+												}
+		
+												span {
+													background-color: black !important;
+													color: white;
+													border: 0 !important;
+													border-radius: 50%;
+													cursor: default !important;
+												}
+											}
+										}
+		
+										.dayname {
+											font-size: 0.8rem;
+											color: var(--gray);
+										}
+									}
+								}
+							}
+						}
+		
+						.form_footer {
+							text-align: end;
+		
+							.input_reset {
+								all: unset;
+								font-size: 0.9rem;
+								@include underline;
+								cursor: pointer;
+							}
+		
+							.form_update {
+								padding: 10px 15px;
+								margin: 0 15px;
+								background-color: black;
+								color: white;
+								border: 0;
+								border-radius: var(--borderRadius);
+								font-weight: 700;
+								cursor: pointer;
+								outline: none;
+							}
+						}
+					}
+	
+				}
+			}
+			
+			.cancel_step-1 {
+				padding: var(--containerVerticalPadding) 0;
+				border-top: var(--bottomBorder);
+				display: none;
+				animation: slide ease .3s;
+	
+				.cancel_step_title {
+					font-size: 2rem;
+					font-weight: 700;
+				}
+				
+				.cancel_step_body {
+					margin: var(--containerHorizontalMargin) 0;
+				}
+				
+				small {
+					display: block;
+					
+					span {
+						@include underline;
+						color: var(--blue);
+					}
+				}
+				
+				form {
+					display: flex;
+					
+					.cancel_step_btn {
+						padding: 10px 15px;
+						margin-left: auto;
+						background-color: black;
+						color: white;
+						border: 0;
+						border-radius: var(--borderRadius);
+						font-weight: 700;
+						cursor: pointer;
+						outline: none;
+					}
+				}
+				
+			}
+		}
+
+		.aside {
+			position: relative;
+			width: 30%;
+			margin: 0 var(--containerHorizontalMargin);
+			
+			.bills {
+				position: sticky;
+				top: 100px;
+				margin-bottom: 50px;
+				
+				.room_detail {
+					display: block;
+					margin-bottom: 20px;
+				}
+	
+				.price,
+				.service {
+					display: flex;
+					justify-content: space-between;
+				}
+	
+				.total_price {
+					font-size: 3rem;
+					font-weight: 700;
+				}
+	
+				.status {
+					margin: var(--containerVerticalPadding) 0;
+				}
+				
+				.delete_info {
+					display: none;
+					
+					* {
+						font-weight: 700;
+					}
+					
+					.refund_price-value {
+					    font-size: 3em;
+					    color: var(--green);
+					}
+				}
+			}
+
+		}
+	}
+
+	@keyframes slide {
+		from {
+			transform: translateX(-100px);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0px);
+			opacity: 1;
+		}
+	}
+}

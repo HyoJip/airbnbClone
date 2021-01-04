@@ -1,0 +1,76 @@
+@import "./_base";
+@import "./_mixins";
+
+.wrap {
+	max-width: var(--wrapWidth);
+	margin: 0 auto;
+	
+	.trip_before, .trip_after {
+		margin: var(--containerHorizontalMargin);
+		
+		.header {
+			.header_title {
+				font-weight: 700;
+				margin-bottom: var(--containerHorizontalMargin);
+			}
+		}
+		
+		.main {
+			display: grid;
+			grid-template-columns: repeat(2, 2fr);
+			gap: 30px;
+			
+			.article_wrap {
+				box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+				display: flex;
+				flex-direction: column;
+				border-radius: var(--borderRadius);
+
+				.article_img_wrap {
+					height: 50%;
+					
+					.article_img {
+						width: 100%;
+						height: 300px;
+						object-fit: cover;
+						object-position: center;
+						border-radius: var(--borderRadius) var(--borderRadius) 0 0;
+					}
+				}
+				
+				.article_info {
+					padding: var(--containerVerticalPadding);
+					
+					.room_name {
+						font-size: 1.2rem;
+						margin: 10px 0;
+						font-weight: 700;
+					}
+					
+					.room_city {
+						padding-bottom: var(--containerVerticalPadding);
+						border-bottom: var(--bottomBorder);
+						color: var(--deepGray);
+						
+						.status {
+							margin: 0 15px;
+							font-weight: 700;
+						}
+					}
+					
+					.reservation_detail_wrap {
+						display: flex;
+						justify-content: space-between;
+						
+						.reservation_deatil {
+							@include underline;
+							cursor: pointer;
+							padding-top: var(--containerVerticalPadding);
+						}
+						
+					}
+				}
+			}
+		}
+	}
+}

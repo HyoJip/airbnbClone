@@ -1,0 +1,240 @@
+@import "./_base";
+@import "./_mixins";
+
+html, body {
+	width: 100%;
+}
+
+.wrap {
+	display: flex;
+	
+	.main_wrap {
+		padding: 0 var(--containerVerticalPadding);
+		margin: var(--containerHorizontalMargin) 0;
+	    width: 50%;
+		
+		@include tablet {
+			width: 100%;
+		}
+
+		.search_result {
+			padding-bottom: var(--containerVerticalPadding);
+			border-bottom: var(--bottomBorder);
+			margin-bottom: 15px;
+			
+			.header_title {
+				font-size: 2.5em;
+				font-weight: 700;
+			}
+		}
+			
+		.room_list {
+			width: 100%;
+			
+			.room_item {
+			    padding: var(--containerVerticalPadding) 0;
+				border-top: var(--bottomBorder);
+				border-bottom: var(--bottomBorder);
+				cursor: pointer;
+				display: flex;
+				
+				.item_left_wrap {
+					display: inherit;
+					position: relative;
+				    flex: 0 0 300px;
+				    overflow: hidden;
+					border-radius: var(--borderRadius);
+				
+					.item_left {
+				    display: flex;
+					position: relative;
+					transition: all ease 0.3s;
+						
+						.image_box {
+							width: 300px;
+							height: 200px;
+							
+							img {
+								width: 100%;
+								height: 100%;
+								object-fit: cover;
+							}					
+						}
+					}
+
+					&:hover i {
+						display: block;
+					}
+		
+					i {
+						position: absolute;
+						display: none;
+						background-color: white;
+						border-radius: 50%;
+						width: 25px;
+					    height: 25px;
+					    margin: 0 5px;
+   						line-height: 25px;
+					    text-align: center;
+						top: 85px;
+						opacity: 0.5;
+						box-shadow: var(--boxShadow);
+						transition: all ease 0.3s;
+						
+						&:hover {
+							opacity: 1;
+							transform: scale(1.1);
+						}
+					}
+					
+					.fa-angle-right {
+						right:0;
+					}
+						
+					.bottom_btn_wrap {
+						position: absolute;
+						width: 100%;
+						bottom: 7px;
+						text-align: center;
+						
+						.circle_mark {
+							display: inline-block;
+							margin: 0 1px;
+							width: 5px;
+							height: 5px;
+							border: 1px solid white;
+							border-radius: 100%;
+							background-color: white;
+							opacity: 0.5;
+							
+							&.now {
+								opacity: 1;
+							}
+						}
+					}
+				}
+				
+				.item_right {
+					margin-left: var(--containerHorizontalMargin);
+					display: flex;
+					flex-direction: column;
+					
+					.room_address {
+						color: var(--deepGray);
+					}
+					
+					.room_name {
+						border-bottom: var(--bottomBorder);
+					    padding-bottom: calc(var(--containerHorizontalMargin)/2);
+						margin-bottom: calc(var(--containerVerticalPadding)/2);
+					}
+					
+					.room_facility,
+					.room_amenity {
+						color: var(--deepGray);
+					}
+					
+					.rating {
+						margin-top: auto;
+						
+						.room_short_info {
+							
+							.star {
+							@include star(1em);							
+							}
+							
+							.rating_count {
+								color: var(--deepGray);
+							}
+						}
+	
+					}
+				}
+			}
+				
+			.pagination {
+				padding: var(--containerVerticalPadding) 0;
+				justify-content: center;
+				
+				.page_btns {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					
+					& > * {
+						margin: 0 8px;	
+					}
+					
+					button {
+						all: unset;
+					    display: flex;
+		    			justify-content: center;
+						cursor: pointer;
+						width: 25px;
+						height: 25px;
+						box-shadow: var(--boxShadow);
+						border-radius: 50%;
+						margin: 0 5px;
+					}
+					
+					.page_num:not(.cur_page) {
+						cursor: pointer;
+						text-align: center;
+						width: 10px;
+						
+						&:hover {
+							@include underline;
+							line-height: 1.5;
+						}
+					}
+					
+					.page_num.cur_page {		
+						background-color: black;
+						width: 25px;
+						height: 25px;
+						color: white;
+						border: 0 !important;
+						border-radius: 50%;
+					    text-align: center;
+					}
+				}
+				
+				.page_detail {
+				    text-align: center;
+				    display: block;
+				    margin-top: 10px;
+				}
+			}
+		}
+	}
+	@include tablet {
+		.map {
+			display: none;
+		}
+	}
+
+	@include desktop {
+		.map_wrapper {
+			width: 100%;
+			
+			.map_relative {
+				position: relative;
+    			height: 100%;
+				
+				.map_sticky {
+    				height: 98vh;
+					position: sticky;
+					top: 0;
+											
+					.map {
+						position: absolute;
+					    width: 100%;
+						height: 100%;
+						right: -30px;
+					}		
+					
+				}
+			}		
+		}
+	}
+}

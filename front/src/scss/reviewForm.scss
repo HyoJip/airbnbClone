@@ -1,0 +1,129 @@
+@import "./_base";
+@import "./_mixins";
+
+fieldset, label { margin: 0; padding: 0; }
+
+.rating { 
+  border: none;
+}
+
+.rating > input { display: none; } 
+.rating > label:before { 
+  margin: 5px;
+  font-size: 1.25em;
+  display: inline-block;
+  content: "★";
+}
+
+.rating > label { 
+  color: #ddd; 
+ float: right; 
+}
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label { color: #FFED85;  }
+
+.aside_header {
+	padding: var(--containerVerticalPadding) 0;
+	margin: 0 var(--containerHorizontalMargin);
+	
+	.aside_title {
+		font-size: 2.5em;
+		font-weight: 700;
+	}
+	
+}
+
+.wrap {
+	display: flex;
+	
+	.aside_wrap {
+		padding: var(--containerVerticalPadding) 0;
+		margin: 0 var(--containerHorizontalMargin);
+		
+		.img_wrap {
+			position: relative;
+			height: 40vh;
+			
+			.room_photo {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+		}
+		
+		.room_detail {
+			margin: 15px 0;
+			font-size: 0.9em;
+			color: var(--deepGray);
+			
+			.room_address_wrap {
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				text-overflow: hidden;
+			}
+		}
+	}
+	
+	.main {
+		padding: var(--containerVerticalPadding) 0;
+		margin: 0 var(--containerHorizontalMargin);
+		
+		p {
+		    font-weight: 300;
+		}
+		
+		.rating {
+    		font-size: 2rem;
+		}
+		
+		.label {
+			font-size: 1.3rem;
+			font-weight: 700;
+		    padding: 10px 0;
+		    display: block;
+		    border-top: var(--bottomBorder);
+			
+			.label_detail {
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--deepGray);
+			}
+		}
+		
+		.review_content {
+			width: 100%;
+			border: 1px solid #ccc;
+			background: #FFF;
+			margin: 0 0 5px;
+			padding: 10px;
+			height: 300px;
+			resize: none;
+			margin: 10px 0;
+			font-family: inherit;
+			
+			&:hover {
+				-webkit-transition: border-color 0.3s ease-in-out;
+	  			-moz-transition: border-color 0.3s ease-in-out;
+				transition: border-color 0.3s ease-in-out;
+				border: 1px solid #aaa;
+			}
+		}
+		
+		button {
+		    border: 0;
+		    outline: none;
+		    padding: 10px 30px;
+		    background-color: var(--red);
+		    color: white;
+		    font-weight: 700;
+		    cursor: pointer;
+		}
+	}
+}
