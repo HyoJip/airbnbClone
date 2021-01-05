@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import "../scss/userSignupPage.scss";
-import { signupHandler } from "../redux/authActions";
+import styles from "../scss/pages/UserSignupPage.module.scss";
 import Input from "../components/shared/Input";
 import Button from "../components/shared/Button";
+import classNames from "classnames/bind";
+
+const cx = classNames.bind(styles);
 
 const UserSignupPage = props => {
 	const initialValue = {
@@ -26,6 +28,11 @@ const UserSignupPage = props => {
 		delete errors[name];
 	};
 
+	const renderLoginPage = () => {
+		props.onClickExitBtn();
+		props.onClickLoginLink();
+	};
+
 	const onClickSignupBtn = () => {
 		setPendingApiCall(true);
 		const user = {
@@ -35,7 +42,10 @@ const UserSignupPage = props => {
 		};
 		props.actions
 			.postSignup(user)
-			.then(response => setPendingApiCall(false))
+			.then(response => {
+				setPendingApiCall(false);
+				renderLoginPage();
+			})
 			.catch(({ response }) => {
 				setPendingApiCall(false);
 				if (response && response.data.validationErrors) {
@@ -51,9 +61,12 @@ const UserSignupPage = props => {
 	}
 
 	return (
-		<>
-			<h1>회원가입</h1>
-			<div>
+		<div className={cx("wrap")}>
+			<div className={cx("main")}>
+				<header className={cx("header")}>
+					<h1 className={cx("title")}>회원가입</h1>
+					<small onClick={props.onClickExitBtn}>❌</small>
+				</header>
 				<Input
 					type="email"
 					name="email"
@@ -90,18 +103,20 @@ const UserSignupPage = props => {
 					hasError={passwordRepeatError && true}
 					error={passwordRepeatError}
 				/>
+				<Button
+					onClick={onClickSignupBtn}
+					disabled={pendingApiCall || passwordRepeatError}
+					pendingApiCall={pendingApiCall}
+					text="가입하기"
+				/>
+				<p className={cx("login_wrap")}>
+					이미 에어비앤비 계정이 있나요?
+					<span className={cx("login_link")} onClick={renderLoginPage}>
+						로그인
+					</span>
+				</p>
 			</div>
-			<Button
-				onClick={onClickSignupBtn}
-				disabled={pendingApiCall || passwordRepeatError}
-				pendingApiCall={pendingApiCall}
-				text="가입하기"
-			/>
-			<p>
-				이미 에어비앤비 계정이 있나요?
-				<a href="">로그인</a>
-			</p>
-		</>
+		</div>
 	);
 };
 

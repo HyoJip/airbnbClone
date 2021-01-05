@@ -1,0 +1,60 @@
+@import "../_vars";
+@import "../_mixins";
+@import "../_animations";
+
+.wrap {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1;
+
+	animation-duration: 0.25s;
+	animation-timing-function: ease-out;
+	animation-name: fadeIn;
+	animation-fill-mode: forwards;
+
+	.main {
+		z-index: 2;
+		background-color: white;
+		padding: 30px 50px;
+		border-radius: $borderRadius;
+
+		animation-duration: 0.25s;
+		animation-timing-function: ease-out;
+		animation-name: slideUp;
+		animation-fill-mode: forwards;
+
+		header {
+			display: flex;
+			align-items: center;
+			margin-bottom: 20px;
+
+			.title {
+				font-size: 1.5em;
+				text-align: center;
+			}
+
+			small {
+				margin-left: auto;
+				cursor: pointer;
+			}
+		}
+
+		.login_link {
+			color: $blue;
+			margin-left: 10px;
+			font-weight: 700;
+			cursor: pointer;
+
+			&:hover {
+				@include underline;
+			}
+		}
+	}
+}

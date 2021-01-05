@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import LoginPage from "./LoginPage";
 
 describe("LoginPage", () => {
@@ -28,6 +28,11 @@ describe("LoginPage", () => {
 			const { container } = render(<LoginPage />);
 			const loginBtn = container.querySelector("button");
 			expect(loginBtn).toBeInTheDocument();
+		});
+		it("닫기 버튼 표시", () => {
+			const { queryByText } = render(<LoginPage />);
+			const exit = queryByText("❌");
+			expect(exit).toBeInTheDocument();
 		});
 	});
 

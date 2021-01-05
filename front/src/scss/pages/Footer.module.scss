@@ -1,0 +1,38 @@
+@import "../_vars";
+
+.body_footer {
+	background-color: rgba(236, 240, 241, 0.5);
+	border-top: 1px solid #ecf0f1;
+
+	.footer_wrap {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: $containerVerticalPadding 0;
+		display: flex;
+		justify-content: space-between;
+	}
+	.company_info {
+		margin: 0 $containerHorizontalMargin;
+		font-weight: 300;
+
+		span {
+			display: block;
+		}
+	}
+	.page_config {
+		margin-right: $containerHorizontalMargin;
+
+		i {
+			margin-left: 15px;
+			font-size: 1.2rem;
+		}
+
+		span {
+			border-bottom: 1px solid black;
+			display: inline-block;
+			line-height: 0.85;
+			font-size: 0.9rem;
+			margin: 0 10px;
+		}
+	}
+}

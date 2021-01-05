@@ -1,21 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700&display=swap");
-$wrapWidth: 1200px;
-$gray: #7f8c8d;
-$deepGray: #535c68;
-$red: #ff385c;
-$blue: lightseagreen;
-$green: #23c382;
-$containerHorizontalMargin: 50px;
-$containerVerticalPadding: 30px;
-$detailFontSize: smaller;
-$bottomBorder: 1px solid #ecf0f1;
-$borderRadius: 10px;
-$calendarDaySize: 40px;
-$boxShadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-
-// Breakpoints
-$breakpoint-tablet: 758px;
-$breakpoint-desktop: 1024px;
+@import "./_vars";
 
 * {
 	padding: 0;
@@ -25,6 +9,11 @@ $breakpoint-desktop: 1024px;
 
 body {
 	font-family: "Noto Sans KR", sans-serif;
+	width: 100%;
+
+	#root {
+		width: 100%;
+	}
 
 	a {
 		text-decoration: none;
@@ -38,17 +27,17 @@ body {
 
 // 휴가 상태 색상
 .ACCEPTED {
-	color: var(--green) !important;
+	color: $green !important;
 }
 
 .PENDING,
 .COMPLETED {
-	color: var(--gray) !important;
+	color: $gray !important;
 }
 
 .REFUSED,
 .CANCLED {
-	color: var(--red) !important;
+	color: $red !important;
 }
 
 // 진행 상태 바

@@ -1,15 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-// import { Provider } from "react-redux";
-// import { createStore } from "redux";
-// import authReducer from "./redux/authReducer";
+import { BrowserRouter } from "react-router-dom";
+import App from "./containers/App";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import authReducer from "./redux/authReducer";
 import reportWebVitals from "./reportWebVitals";
 
-// const store = createStore(authReducer);
+const store = createStore(authReducer);
 ReactDOM.render(
 	<React.StrictMode>
-		<App />
+		<Provider store={store}>
+			<BrowserRouter>
+				<App />
+			</BrowserRouter>
+		</Provider>
 	</React.StrictMode>,
 	document.getElementById("root")
 );

@@ -1,28 +1,14 @@
-@import "./_base";
-
-@mixin tablet {
-  @media (max-width: #{$breakpoint-desktop - 1px}) {
-    @content;
-  }
-}
-
-@mixin desktop {
-  @media (min-width: #{$breakpoint-desktop}) {
-    @content;
-  }
-}
+@import "./_vars";
 
 @mixin underline {
 	border-bottom: 1px solid black;
 	display: inline-block;
 	line-height: 0.85;
-	text-shadow: 1px 1px var(--backgroudColor), 1px -1px var(--backgroudColor),
-		-1px 1px var(--backgroudColor), -1px -1px var(--backgroudColor);
 	@content;
 }
 
 @mixin star($font-size) {
-	color: var(--red);
+	color: $red;
 	font-size: $font-size;
 }
 
@@ -33,7 +19,7 @@
 	height: 50px;
 
 	.reservation_display {
-		color: var(--gray);
+		color: $gray;
 		font-weight: 300;
 	}
 }
@@ -56,10 +42,10 @@
 @mixin changeHeaderColor {
 	.body_header ul .airbnb_icon,
 	.body_header ul .header_profile .profile_img {
-		color: var(--blue);
+		color: $blue;
 	}
-	
+
 	.body_header ul .room_search i {
-		background-color: var(--blue);
+		background-color: $blue;
 	}
 }

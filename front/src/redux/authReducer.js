@@ -1,14 +1,17 @@
-const authReducer = (state, action) => {
+const initialState = {
+	id: "",
+	email: "",
+	name: "",
+	password: "",
+	profile: "",
+	status: "",
+	isLoggedIn: false,
+};
+
+const authReducer = (state = initialState, action) => {
 	switch (action.type) {
 		default:
-			return {
-				id: "",
-				name: "",
-				email: "",
-				password: "",
-				profile: "",
-				isLoggedIn: "",
-			};
+			return state;
 	}
 };
 

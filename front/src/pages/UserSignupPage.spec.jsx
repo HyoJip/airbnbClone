@@ -44,6 +44,11 @@ describe("UserSignupPage", () => {
 			const button = container.querySelector("button");
 			expect(button).toBeInTheDocument();
 		});
+		it("닫기 버튼 표시", () => {
+			const { queryByText } = render(<UserSignupPage />);
+			const exit = queryByText("❌");
+			expect(exit).toBeInTheDocument();
+		});
 	});
 
 	describe("Interactions", () => {

@@ -1,0 +1,44 @@
+@import "../_vars";
+
+.subnav {
+	position: absolute;
+	border-radius: $borderRadius;
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	top: 50px;
+	right: 0px;
+	white-space: nowrap;
+	align-items: start;
+	padding: 10px 0;
+	box-shadow: $boxShadow;
+	z-index: 1;
+
+	.submenu {
+		padding: 10px 50px;
+		width: 100%;
+
+		a {
+			width: 100%;
+			display: block;
+		}
+
+		.submenu:hover {
+			background-color: #ecf0f1;
+		}
+
+		&.host_btn {
+			font-weight: 300;
+			border-top: $bottomBorder;
+
+			& + .host_btn {
+				border-top: 0;
+				border-bottom: $bottomBorder;
+			}
+
+			& ~ .submenu {
+				font-weight: 300;
+			}
+		}
+	}
+}

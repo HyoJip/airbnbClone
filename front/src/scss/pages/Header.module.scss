@@ -1,0 +1,103 @@
+@import "../_vars";
+
+.body_header {
+	width: 100%;
+	height: 80px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03), 0 3px 3px rgba(0, 0, 0, 0.06);
+
+	.nav_list {
+		display: flex;
+		padding: 0 25px;
+		justify-content: space-between;
+		align-items: center;
+
+		.airbnb_icon {
+			display: flex;
+			color: $red;
+			line-height: 80px;
+			font-weight: 700;
+			font-size: 1.4rem;
+			align-items: center;
+			cursor: pointer;
+
+			a {
+				color: inherit;
+			}
+
+			i {
+				font-size: 2.7rem;
+				margin-right: 5px;
+			}
+		}
+
+		.room_search {
+			border: 1px solid #ecf0f1;
+			border-radius: calc(#{$borderRadius} * 2);
+			width: 330px;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				box-shadow: $boxShadow;
+			}
+
+			i {
+				width: 30px;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
+				color: white;
+				font-size: 0.7em;
+				border-radius: 50%;
+				background-color: $red;
+				margin: 10px;
+				cursor: pointer;
+			}
+
+			.search_input {
+				all: unset;
+				padding: 0 15px;
+
+				&::placeholder {
+					color: black;
+					font-size: 0.9em;
+				}
+			}
+		}
+		.header_profile {
+			border: 1px solid #ecf0f1;
+			border-radius: calc(#{$borderRadius} * 2);
+			cursor: pointer;
+			padding: 5px 10px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			transition: all 0.2s ease-in-out;
+			position: relative;
+
+			&:hover {
+				box-shadow: $boxShadow;
+			}
+
+			i {
+				margin: 0 5px;
+			}
+
+			.profile_img {
+				margin-left: 10px;
+				color: $red;
+				font-size: 1.8rem;
+			}
+
+			img {
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				object-fit: cover;
+			}
+		}
+	}
+}
