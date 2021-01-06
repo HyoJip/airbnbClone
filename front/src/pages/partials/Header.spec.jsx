@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import Header from "./Header";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -147,6 +147,17 @@ describe("Header", () => {
 			fireEvent.click(loginLink);
 
 			expect(queryByText("에어비앤비 계정이 없으세요?")).toBeInTheDocument();
+		});
+		it("로그아웃 클릭시, 로그아웃 링크 사라짐", () => {
+			const { container, queryByText } = setup(loggedInState);
+			const profileMenu = container.querySelector(".header_profile");
+			fireEvent.click(profileMenu);
+
+			const logoutLink = queryByText("로그아웃");
+			fireEvent.click(logoutLink);
+			fireEvent.click(profileMenu);
+
+			expect(logoutLink).not.toBeInTheDocument();
 		});
 	});
 });

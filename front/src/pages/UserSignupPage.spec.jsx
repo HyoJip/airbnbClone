@@ -1,6 +1,6 @@
 import React from "react";
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import UserSignupPage from "./UserSignupPage";
+import { UserSignupPage } from "./UserSignupPage";
 
 describe("UserSignupPage", () => {
 	describe("Layout", () => {

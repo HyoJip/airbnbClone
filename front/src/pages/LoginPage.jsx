@@ -3,10 +3,12 @@ import Button from "../components/shared/Button";
 import Input from "../components/shared/Input";
 import classNames from "classnames/bind";
 import styles from "../scss/pages/LoginPage.module.scss";
+import { loginHandler } from "../redux/authActions";
+import { connect } from "react-redux";
 
 const cx = classNames.bind(styles);
 
-const LoginPage = props => {
+export const LoginPage = props => {
 	const [input, setInput] = useState({
 		email: "",
 		password: "",
@@ -30,14 +32,14 @@ const LoginPage = props => {
 	const onClickBtn = () => {
 		setPendingApiCall(true);
 		const auth = {
-			username: input.email,
+			email: input.email,
 			password: input.password,
 		};
 		props.actions
 			.postLogin(auth)
 			.then(response => {
 				setPendingApiCall(false);
-				props.history.push("/");
+				props.onClickExitBtn();
 			})
 			.catch(({ response }) => {
 				if (response) {
@@ -94,4 +96,8 @@ LoginPage.defaultProps = {
 	},
 };
 
-export default LoginPage;
+const mapDispatchToProps = dispatch => ({
+	actions: { postLogin: auth => dispatch(loginHandler(auth)) },
+});
+
+export default connect(null, mapDispatchToProps)(LoginPage);

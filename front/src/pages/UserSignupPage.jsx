@@ -4,10 +4,11 @@ import styles from "../scss/pages/UserSignupPage.module.scss";
 import Input from "../components/shared/Input";
 import Button from "../components/shared/Button";
 import classNames from "classnames/bind";
+import { signupHandler } from "../redux/authActions";
 
 const cx = classNames.bind(styles);
 
-const UserSignupPage = props => {
+export const UserSignupPage = props => {
 	const initialValue = {
 		email: "",
 		name: "",
@@ -44,7 +45,7 @@ const UserSignupPage = props => {
 			.postSignup(user)
 			.then(response => {
 				setPendingApiCall(false);
-				renderLoginPage();
+				props.onClickExitBtn();
 			})
 			.catch(({ response }) => {
 				setPendingApiCall(false);
@@ -126,4 +127,12 @@ UserSignupPage.defaultProps = {
 	},
 };
 
-export default UserSignupPage;
+const mapDispatchToProps = dispatch => {
+	return {
+		actions: {
+			postSignup: user => dispatch(signupHandler(user)),
+		},
+	};
+};
+
+export default connect(null, mapDispatchToProps)(UserSignupPage);

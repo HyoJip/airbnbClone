@@ -1,6 +1,6 @@
 import React from "react";
-import { fireEvent, render, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
-import LoginPage from "./LoginPage";
+import { fireEvent, render, waitFor } from "@testing-library/react";
+import { LoginPage } from "./LoginPage";
 
 describe("LoginPage", () => {
 	describe("Layout", () => {
@@ -92,7 +92,7 @@ describe("LoginPage", () => {
 			fireEvent.click(button);
 
 			const expectedUserAuthObject = {
-				username: "test@google.com",
+				email: "test@google.com",
 				password: "P4ssword",
 			};
 
