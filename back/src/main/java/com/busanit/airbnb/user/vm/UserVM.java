@@ -1,6 +1,7 @@
-package com.busanit.airbnb.user;
+package com.busanit.airbnb.user.vm;
 
-import com.busanit.airbnb.enums.UserStatus;
+import com.busanit.airbnb.user.User;
+import com.busanit.airbnb.user.UserStatus;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

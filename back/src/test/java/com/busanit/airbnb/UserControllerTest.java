@@ -2,9 +2,12 @@ package com.busanit.airbnb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,17 +16,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.busanit.airbnb.component.TestUtil;
-import com.busanit.airbnb.enums.UserStatus;
 import com.busanit.airbnb.shared.ApiError;
 import com.busanit.airbnb.shared.GeneralResponse;
 import com.busanit.airbnb.user.User;
 import com.busanit.airbnb.user.UserRepository;
+import com.busanit.airbnb.user.UserService;
+import com.busanit.airbnb.user.UserStatus;
+import com.busanit.airbnb.user.vm.UserUpdateVM;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
@@ -37,9 +46,13 @@ class UserControllerTest {
 	@Autowired
 	UserRepository userRepository;
 	
+	@Autowired
+	UserService userService;
+	
 	@BeforeEach
 	void cleanup() {
 		userRepository.deleteAll();
+		testRestTemplate.getRestTemplate().getInterceptors().clear();
 	}
 
 	@Test @DisplayName("[회원가입] 유효한 회원의 경우, 200 받음")
@@ -209,7 +222,7 @@ class UserControllerTest {
 		
 		ResponseEntity<ApiError> response = postUser(user, ApiError.class);
 		
-		assertThat(response.getBody().getValidationErrors().get("username")).isEqualTo("필수 입력 값입니다");
+		assertThat(response.getBody().getValidationErrors().get("name")).isEqualTo("필수 입력 값입니다");
 	}
 	@Test @DisplayName("[회원가입] 올바르지 않은 이메일 형식, message 받음")
 	void postUser_whenEmailIsNotValid_receiveMessageForEmail() {
@@ -249,12 +262,141 @@ class UserControllerTest {
 	}
 	
 	
+	@Test @DisplayName("[회원조회] 존재하는 회원, 200 받음")
+	void getUserById_whenUserIsExist_receiveOk() {
+		User user = userService.save(TestUtil.createValidUser());
+		ResponseEntity<Object> response = getUser(user.getId(), Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	@Test @DisplayName("[회원조회] 존재하는 회원, 비밀번호 미포함")
+	void getUserById_whenUserIsExist_receiveUserWithoutPassword() {
+		User user = userService.save(TestUtil.createValidUser());
+		ResponseEntity<String> response = getUser(user.getId(), String.class);
+		
+		assertThat(response.getBody().contains("password")).isFalse();
+	}
+	@Test @DisplayName("[회원조회] 존재하지 않는 회원, 404 받음")
+	void getUserById_whenUserIsNotExist_receiveNotFound() {
+		userService.save(TestUtil.createValidUser());
+		ResponseEntity<Object> response = getUser(0, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	@Test @DisplayName("[회원조회] 존재하지 않는 회원, ApiError 받음")
+	void getUserById_whenUserIsNotExist_receiveApiError() {
+		userService.save(TestUtil.createValidUser());
+		ResponseEntity<ApiError> response = getUser(0, ApiError.class);
+		
+		assertThat(response.getBody().getMessage()).contains("일치하는 회원이 없습니다");
+	}
+
 	
-	
-	private <T> ResponseEntity<T> postUser(User user, Class<T> responseType) {
-		return testRestTemplate.postForEntity(API_1_0_USERS, user, responseType);
+	@Test @DisplayName("[회원수정] 인증되지 않은 회원, 401 받음")
+	void putUserById_whenUserIsNotExist_receiveUnAuthrized() {
+		ResponseEntity<Object> response = putUser(0, null, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+	}
+	@Test @DisplayName("[회원수정] 다른 회원 수정하려할 경우, 403 받음")
+	void putUserById_whenUserTryUpdateAnotherUser_receiveForbidden() {
+		userService.save(TestUtil.createValidUser());
+		authenticate();
+		ResponseEntity<Object> response = putUser(0, null, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+	@Test @DisplayName("[회원수정] 인증되지 않은 회원, ApiError 받음")
+	void putUserById_whenUserIsNotExist_receiveApiError() {
+		ResponseEntity<ApiError> response = putUser(0, null, ApiError.class);
+		
+		assertThat(response.getBody().getUrl()).contains(API_1_0_USERS + "/0");
+	}
+	@Test @DisplayName("[회원수정] 다른 회원 수정하려할 경우, ApiError 받음")
+	void putUserById_whenUserTryUpdateAnotherUser_receiveApiError() {
+		userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		ResponseEntity<ApiError> response = putUser(0, null, ApiError.class);
+		
+		assertThat(response.getBody().getUrl()).contains(API_1_0_USERS + "/0");
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 본인 수정 요청, 200 받음")
+	void putUserById_whenAuthorizedUserSendValidRequest_receiveOk() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);		
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 본인 수정 요청, DB에 이름 수정됨")
+	void putUserById_whenAuthorizedUserSendValidRequest_nameIsUpdatedInDB() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		putUser(user.getId(), request, Object.class);
+		User inDB = userService.findById(user.getId());
+		
+		assertThat(inDB.getName()).isEqualTo(userUpdateVM.getName());
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 본인 수정 요청, DB에 비밀번호 수정됨")
+	void putUserById_whenAuthorizedUserSendValidRequest_passwordIsUpdatedInDB() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		String prevPassword = userService.findById(user.getId()).getPassword();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		putUser(user.getId(), request, Object.class);
+		User inDB = userService.findById(user.getId());
+		
+		assertThat(prevPassword).isNotEqualTo(inDB.getPassword());
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 본인 수정 요청, 업데이트 된 회원 정보 받음")
+	void putUserById_whenAuthorizedUserSendValidRequest_receivceUserWithUpdatedName() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<UserUpdateVM> response = putUser(user.getId(), request, UserUpdateVM.class);
+		
+		assertThat(response.getBody().getName()).isEqualTo(userUpdateVM.getName());
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 지원하는 타입의 프로필 사진 수정 요청, 무작위 생성된 이름으로 저장됨")
+	void putUserById_whenAuthorizedUserSendValidRequest_receivce() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		ClassPathResource imageResource = new ClassPathResource("profile.png");
+		byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
+		String imageString = Base64.getEncoder().encodeToString(imageArr);
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setProfile(imageString);
+		
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<UserUpdateVM> response = putUser(user.getId(), request, UserUpdateVM.class);
+		
+		assertThat(response.getBody().getProfile()).isNotEqualTo("profile-image.png");
 	}
 	
 	
-
+	private void authenticate() {
+		testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test@naver.com", "P4ssword"));
+	}
+	private <T> ResponseEntity<T> putUser(long id, HttpEntity<?> request, Class<T> responseType) {
+		String path = API_1_0_USERS + "/" + id;
+		return testRestTemplate.exchange(path, HttpMethod.PUT, request, responseType);
+	}
+	private <T> ResponseEntity<T> getUser(long id, Class<T> responseType) {
+		return testRestTemplate.getForEntity(API_1_0_USERS + "/" + id, responseType);
+	}
+	private <T> ResponseEntity<T> postUser(User user, Class<T> responseType) {
+		return testRestTemplate.postForEntity(API_1_0_USERS, user, responseType);
+	}
 }

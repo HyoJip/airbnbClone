@@ -16,7 +16,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.busanit.airbnb.converter.UserStatusConverter;
-import com.busanit.airbnb.enums.UserStatus;
 import com.busanit.airbnb.validation.UniqueEmail;
 import com.busanit.airbnb.validation.ValidEmail;
 
