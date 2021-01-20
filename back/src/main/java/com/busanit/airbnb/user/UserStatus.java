@@ -1,4 +1,4 @@
-package com.busanit.airbnb.enums;
+package com.busanit.airbnb.user;
 
 public enum UserStatus {
 	GUEST("G"),
