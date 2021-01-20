@@ -2,7 +2,6 @@ package com.busanit.airbnb.user;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +19,11 @@ import com.busanit.airbnb.user.vm.UserVM;
 @RequestMapping("/api/1.0")
 public class UserController {
 	
-	@Autowired
-	UserService userService;
+	private final UserService userService;
+	
+	public UserController(UserService userService) {
+		this.userService = userService;
+	}
 
 	@PostMapping("/users")
 	public GeneralResponse signup(@Valid @RequestBody User user) {
@@ -37,7 +39,7 @@ public class UserController {
 	
 	@PutMapping("/users/{id:[\\d]+}")
 	@PreAuthorize("#id == principal.id")
-	public UserVM update(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdate) {
+	public UserVM update(@PathVariable long id, @Valid @RequestBody(required = false) UserUpdateVM userUpdate) {
 		User user = userService.update(id, userUpdate);
 		return new UserVM(user);
 	}

@@ -9,3 +9,24 @@ spring:
         persistence:
           validation:
             mode: none
+
+  profiles:    active:    - dev
+---
+spring:  profiles: prod
+  datasource:    url: jdbc:h2:./airbnb-prod
+    username: sa
+  jpa:    hibernate:      ddl-auto: update
+  h2:    console:      enabled: false
+airbnb:
+  upload-path: uploads-prod
+
+---
+spring:  profiles: dev
+  datasource:    url: jdbc:h2:mem:airbnb-dev
+airbnb:
+  upload-path: uploads-dev
+  
+---
+spring:  profiles: test
+airbnb:
+  upload-path: uploads-test

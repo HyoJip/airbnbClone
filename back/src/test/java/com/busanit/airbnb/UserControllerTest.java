@@ -2,12 +2,14 @@ package com.busanit.airbnb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.busanit.airbnb.component.TestUtil;
+import com.busanit.airbnb.configuration.AppConfiguration;
 import com.busanit.airbnb.shared.ApiError;
 import com.busanit.airbnb.shared.GeneralResponse;
 import com.busanit.airbnb.user.User;
@@ -33,6 +36,7 @@ import com.busanit.airbnb.user.UserRepository;
 import com.busanit.airbnb.user.UserService;
 import com.busanit.airbnb.user.UserStatus;
 import com.busanit.airbnb.user.vm.UserUpdateVM;
+import com.busanit.airbnb.user.vm.UserVM;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
@@ -49,10 +53,19 @@ class UserControllerTest {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	AppConfiguration appConfiguration;
+	
 	@BeforeEach
 	void cleanup() {
 		userRepository.deleteAll();
 		testRestTemplate.getRestTemplate().getInterceptors().clear();
+	}
+	
+	@AfterEach
+	void cleanupDirectory() throws IOException {
+		FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImageFolder()));
+		FileUtils.cleanDirectory(new File(appConfiguration.getFullRoomImageFolder()));
 	}
 
 	@Test @DisplayName("[회원가입] 유효한 회원의 경우, 200 받음")
@@ -364,28 +377,201 @@ class UserControllerTest {
 		
 		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
 		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
-		ResponseEntity<UserUpdateVM> response = putUser(user.getId(), request, UserUpdateVM.class);
+		ResponseEntity<UserVM> response = putUser(user.getId(), request, UserVM.class);
 		
 		assertThat(response.getBody().getName()).isEqualTo(userUpdateVM.getName());
 	}
 	@Test @DisplayName("[회원수정] 인증된 회원의 지원하는 타입의 프로필 사진 수정 요청, 무작위 생성된 이름으로 저장됨")
-	void putUserById_whenAuthorizedUserSendValidRequest_receivce() throws IOException {
+	void putUserById_whenAuthorizedUserSendValidRequest_savedWithRandomName() throws IOException {
 		User user = userService.save(TestUtil.createValidUser());
 		authenticate();
 		
-		ClassPathResource imageResource = new ClassPathResource("profile.png");
-		byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
-		String imageString = Base64.getEncoder().encodeToString(imageArr);
+		String imageString = readFileToBase64("profile.png");
 		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
 		userUpdateVM.setProfile(imageString);
 		
 		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
-		ResponseEntity<UserUpdateVM> response = putUser(user.getId(), request, UserUpdateVM.class);
-		
+		ResponseEntity<UserVM> response = putUser(user.getId(), request, UserVM.class);
 		assertThat(response.getBody().getProfile()).isNotEqualTo("profile-image.png");
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 지원하는 타입의 프로필 사진 수정 요청, 프로필 촐더에 이미지 파일 저장됨")
+	void putUserById_whenAuthorizedUserSendValidRequest_receivce() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		String imageString = readFileToBase64("profile.png");
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setProfile(imageString);
+		
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<UserVM> response = putUser(user.getId(), request, UserVM.class);
+		
+		String imageName = response.getBody().getProfile();
+		File savedImage = new File(appConfiguration.getFullProfileImageFolder() + "/" + imageName);
+		assertThat(savedImage.exists()).isTrue();
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 이름 null, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithoutName_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setName(null);
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 이름 2글자 미만 , 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithNameLessThanRequired_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setName("a");
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 이름 20글자 초과 , 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithNameMoreThanRequired_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String str21 = IntStream.rangeClosed(1, 21).mapToObj(i -> "a").toString();
+		userUpdateVM.setName(str21);
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 password 8글자 미만, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithPasswordLessThanRequired_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setPassword("abc");
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 password 255글자 초과, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithPasswordMoreThanRequired_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String moreThan255 = IntStream.rangeClosed(1, 256).mapToObj(i -> "a").collect(Collectors.joining());
+		userUpdateVM.setPassword("P4ssword" + moreThan255);
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 password 소문자만, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithPasswordOnlyLowercase_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setPassword("password");
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 password 대문자만, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithPasswordOnlyUppercase_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setPassword("PASSWORD");
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 인증된 회원의 password 숫자만, 400 받음")
+	void putUserById_whenAuthorizedUserSendInvalidRequestWithPasswordOnlyDemical_receiveBadRequest() {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		userUpdateVM.setPassword("12345678");
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 프로필 이미지가 JPG일 경우, 200 받음")
+	void putUserById_whenAuthorizedUserSendValidRequestWithJpgFile_receiveOk() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String imageString = readFileToBase64("test-jpg.jpg");
+		userUpdateVM.setProfile(imageString);
+		
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	@Test @DisplayName("[회원수정] 프로필 이미지가 PNG일 경우, 200 받음")
+	void putUserById_whenAuthorizedUserSendValidRequestWithPngFile_receiveOk() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String imageString = readFileToBase64("test-png.png");
+		userUpdateVM.setProfile(imageString);
+		
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	@Test @DisplayName("[회원수정] 프로필 이미지가 GIF일 경우, 400 받음")
+	void putUserById_whenAuthorizedUserSendValidRequestWithGifFile_receiveBadRequest() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String imageString = readFileToBase64("test-gif.gif");
+		userUpdateVM.setProfile(imageString);
+		
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		ResponseEntity<Object> response = putUser(user.getId(), request, Object.class);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+	@Test @DisplayName("[회원수정] 프로필 이미지가 이미 존재할 경우, 이전 이미지 파일 삭제")
+	void putUserById_whenAuthorizedUserwhoHasProfileImageChangeImage_removesOldFileFromStroage() throws IOException {
+		User user = userService.save(TestUtil.createValidUser());
+		authenticate();
+		UserUpdateVM userUpdateVM = TestUtil.createValidUserUpdateVM();
+		String imageString = readFileToBase64("test-png.png");
+		userUpdateVM.setProfile(imageString);
+		HttpEntity<UserUpdateVM> request = new HttpEntity<>(userUpdateVM);
+		
+		ResponseEntity<UserVM> response = putUser(user.getId(), request, UserVM.class);
+		putUser(user.getId(), request, Object.class);
+		
+		String oldImageName = response.getBody().getProfile();
+		File oldImage = new File(appConfiguration.getFullProfileImageFolder() + "/" + oldImageName);
+		assertThat(oldImage.exists()).isFalse();
 	}
 	
 	
+	
+	private String readFileToBase64(String fileName) throws IOException {
+		ClassPathResource imageResource = new ClassPathResource(fileName);
+		byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
+		String imageString = Base64.getEncoder().encodeToString(imageArr);
+		return imageString;
+	}
 	private void authenticate() {
 		testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test@naver.com", "P4ssword"));
 	}

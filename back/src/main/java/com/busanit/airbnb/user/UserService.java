@@ -1,10 +1,9 @@
 package com.busanit.airbnb.user;
 
-import java.util.UUID;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.busanit.airbnb.file.FileService;
 import com.busanit.airbnb.shared.NotFoundException;
 import com.busanit.airbnb.user.vm.UserUpdateVM;
 
@@ -12,11 +11,13 @@ import com.busanit.airbnb.user.vm.UserUpdateVM;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
+	private final FileService fileService;
 	
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileService fileService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.fileService = fileService;
 	}
 	
 	public User save(User user) {
@@ -34,8 +35,11 @@ public class UserService {
 		User user = userRepository.getOne(id);
 		user.setName(userUpdate.getName());
 		user.setPassword(userUpdate.getPassword());
-		String randomFileName = UUID.randomUUID().toString().replaceAll("-", "");
-		user.setProfile(randomFileName);
+		if (userUpdate.getProfile() != null) {
+			String randomFileName = fileService.saveProfileImage(userUpdate.getProfile());
+			fileService.deleteProfileImage(randomFileName);
+			user.setProfile(randomFileName);
+		}
 		return userRepository.save(user);
 	}
 }
