@@ -17,11 +17,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.busanit.airbnb.component.TestUtil;
-import com.busanit.airbnb.enums.UserStatus;
 import com.busanit.airbnb.shared.ApiError;
 import com.busanit.airbnb.user.User;
 import com.busanit.airbnb.user.UserRepository;
 import com.busanit.airbnb.user.UserService;
+import com.busanit.airbnb.user.UserStatus;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)

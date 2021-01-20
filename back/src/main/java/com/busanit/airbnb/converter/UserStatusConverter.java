@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 import javax.persistence.AttributeConverter;
 
-import com.busanit.airbnb.enums.UserStatus;
+import com.busanit.airbnb.user.UserStatus;
 
 public class UserStatusConverter implements AttributeConverter<UserStatus, String>{
 

@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "airbnb.upload-path",
+  "type": "java.lang.String",
+  "description": "upload path for dinamic media file depending the active profile"
+}]}
